@@ -35,6 +35,34 @@ class Graph:
         ox.plot_graph_route(self.graph, rota, route_linewidth=4, node_size=0, bgcolor="white")
 
 
+    def plotar_rota_com_zoom(self, rota, margem=0.005):
+        """
+        Plota a rota com zoom automático baseado nos nós da rota.
+        margem: margem geográfica (em graus) ao redor da rota
+        """
+        import matplotlib.pyplot as plt
+
+        # Pega os pontos da rota como GeoDataFrame
+        rota_coords = [(self.graph.nodes[n]['x'], self.graph.nodes[n]['y']) for n in rota]
+        xs, ys = zip(*rota_coords)
+
+        # Calcula limites com margem
+        xlim = (min(xs) - margem, max(xs) + margem)
+        ylim = (min(ys) - margem, max(ys) + margem)
+
+        # Plota usando o osmnx com limites ajustados
+        fig, ax = ox.plot_graph_route(
+            self.graph, rota,
+            route_linewidth=4, node_size=0, bgcolor="white", ax=None,
+            show=False, close=False
+        )
+        
+        ax.set_xlim(xlim)
+        ax.set_ylim(ylim)
+        plt.tight_layout()
+        plt.title("Rota com Zoom Automático")
+        plt.show()
+
 
 # Classe que representa todos os hemocentros da cidade escolhida
 class BancoDeHemocentros:
