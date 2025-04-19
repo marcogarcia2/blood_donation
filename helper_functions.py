@@ -27,12 +27,12 @@ class Graph:
 
     # Calcula rota com método padrão da biblioteca networkx
     def calcular_rota(self, origem, destino, weight="length"):
-        rota = nx.shortest_path(self.grafo, origem, destino, weight=weight)
+        rota = nx.shortest_path(self.graph, origem, destino, weight=weight)
         return rota
 
     # Plota a rota encontrada com o networkx
     def plotar_rota(self, rota):
-        ox.plot_graph_route(self.grafo, rota, route_linewidth=4, node_size=0, bgcolor="white")
+        ox.plot_graph_route(self.graph, rota, route_linewidth=4, node_size=0, bgcolor="white")
 
 
 
@@ -61,7 +61,7 @@ class BancoDeHemocentros:
     # Gerando um número aleatório de bolsas de sangue de cada tipo
     def __generate_random_stock(self):
         return {
-            tipo: random.choices([0, random.randint(1, 50)], weights=[0.5, 0.5])[0]
+            tipo: random.choices([0, random.randint(1, 50)], weights=[0.6, 0.4])[0]
             for tipo in self.TIPOS_SANGUINEOS
         }
 
@@ -90,7 +90,6 @@ class BancoDeHemocentros:
     def hemocentros_validos(self, tipo: str) -> list:
         
         hcs_validos = []
-
         doadores = self.__doadores(tipo)
 
         for hc in self.hemocentros:
