@@ -29,6 +29,11 @@ class Graph:
     def calcular_rota(self, origem, destino, weight="length"):
         rota = nx.shortest_path(self.graph, origem, destino, weight=weight)
         return rota
+    
+    # Calcula a distância da rota com método padrão da biblioteca networkx
+    def calcular_distancia(self, origem, destino, weight="length"):
+        distancia = nx.shortest_path_length(self.graph, origem, destino, weight=weight)
+        return distancia
 
     # Plota a rota encontrada com o networkx
     def plotar_rota(self, rota):
