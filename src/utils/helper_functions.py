@@ -187,7 +187,7 @@ def plotar_com_zoom(gdf_user, gdf_hcs, gdf_edges, valid=False, map=True):
     fig, ax = plt.subplots(figsize=(10, 10))
     gdf_edges.plot(ax=ax, linewidth=0.2, edgecolor="blue", label='Ruas')
     gdf_hcs.plot(ax=ax, color="red", markersize=50, zorder=3, label=hc_label)
-    gdf_user.plot(ax=ax, color="#00AA00", markersize=50, zorder=3, label='Localização do Usuário')
+    gdf_user.plot(ax=ax, color="#00AA00", markersize=150, zorder=3, label='Localização do Usuário')
     
 
     # Aplicando limites
