@@ -93,13 +93,19 @@ class BloodDonationApp:
             variable=self.algoritmo, 
             value="BFS"
         ).grid(row=0, column=6, padx=5, pady=5)
+        ttk.Radiobutton(
+            control_frame, 
+            text="Ideal", 
+            variable=self.algoritmo, 
+            value="Ideal"
+        ).grid(row=0, column=7, padx=5, pady=5)
         
         # Botão para executar busca
         ttk.Button(
             control_frame, 
             text="Encontrar Rota", 
             command=self.encontrar_rota
-        ).grid(row=0, column=7, padx=5, pady=5)
+        ).grid(row=0, column=8, padx=5, pady=5)
         
         # Frame para informações
         self.info_frame = ttk.LabelFrame(main_frame, text="Informações", padding="5")
@@ -191,10 +197,21 @@ class BloodDonationApp:
             return
         
         # Executar algoritmo selecionado
-        if self.algoritmo.get() == "A*":
+        algoritmo = self.algoritmo.get()
+        if algoritmo == "A*":
             rota = a_estrela(self.grafo.graph, self.origem, hemocentros_validos)
-        else:
+        elif algoritmo == "BFS":
             rota = bfs(self.grafo.graph, self.origem, hemocentros_validos)
+        elif algoritmo == "Ideal":
+            distancias = {
+                destino: self.grafo.calcular_distancia(self.origem, destino)
+                for destino in hemocentros_validos
+            }
+            destino_mais_proximo = min(distancias.items(), key=lambda x: x[1])[0]
+            rota = self.grafo.calcular_rota(self.origem, destino_mais_proximo)
+        else:
+            messagebox.showerror("Erro", "Algoritmo inválido!")
+            return
         
         if rota is None:
             messagebox.showerror("Erro", "Não foi possível encontrar uma rota!")
