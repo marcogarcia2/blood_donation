@@ -1,6 +1,8 @@
 import osmnx as ox
 import networkx as nx
 import random
+import pandas as pd
+import matplotlib.pyplot as plt
 
 # Classe que representa o grafo da cidade escolhida
 class Graph:
@@ -133,3 +135,73 @@ class BancoDeHemocentros:
                     break
         
         return hcs_validos
+    
+
+# Função que plota os hemocentros, o usuário e as ruas com zoom (sem o mapa por trás)
+def plotar_com_zoom(gdf_user, gdf_hcs, gdf_edges, valid=False, map=True):
+    
+    # Juntando os pontos que queremos enquadrar
+    gdf_zoom = pd.concat([gdf_user, gdf_hcs])
+
+    # Parâmetros de margem e tamanho mínimo
+    margin_percent = 0.1
+    min_width = 0.1
+    min_height = 0.1
+
+    # Calculando limites brutos
+    x_min, x_max = gdf_zoom.geometry.x.min(), gdf_zoom.geometry.x.max()
+    y_min, y_max = gdf_zoom.geometry.y.min(), gdf_zoom.geometry.y.max()
+
+    # Dimensões reais
+    real_width = x_max - x_min
+    real_height = y_max - y_min
+
+    # Margem absoluta
+    x_margin = real_width * margin_percent
+    y_margin = real_height * margin_percent
+
+    # Tamanhos finais respeitando mínimo
+    final_width = max(real_width, min_width)
+    final_height = max(real_height, min_height)
+
+    # Centro da área
+    x_center = (x_min + x_max) / 2
+    y_center = (y_min + y_max) / 2
+
+    # Limites ajustados com margem
+    x_min_plot = x_center - final_width / 2 - x_margin
+    x_max_plot = x_center + final_width / 2 + x_margin
+    y_min_plot = y_center - final_height / 2 - y_margin
+    y_max_plot = y_center + final_height / 2 + y_margin
+
+    # Verificando se os hemocentros são validos
+    title, hc_label = "", ""
+    if (valid):
+        hc_label = "Hemocentro Válido"
+        title = "Usuário e Hemocentros Válidos (com Zoom)"
+    else:
+        hc_label = "Hemocentro"
+        title = "Usuário e Hemocentros (com Zoom)"
+
+    # Plotando o mapa
+    fig, ax = plt.subplots(figsize=(10, 10))
+    gdf_edges.plot(ax=ax, linewidth=0.2, edgecolor="blue", label='Ruas')
+    gdf_hcs.plot(ax=ax, color="red", markersize=50, zorder=3, label=hc_label)
+    gdf_user.plot(ax=ax, color="#00AA00", markersize=50, zorder=3, label='Localização do Usuário')
+    
+
+    # Aplicando limites
+    ax.set_xlim(x_min_plot, x_max_plot)
+    ax.set_ylim(y_min_plot, y_max_plot)
+
+    if (map):
+        import contextily as ctx
+        ctx.add_basemap(ax, crs=gdf_edges.crs, source=ctx.providers.OpenStreetMap.Mapnik)
+
+    # Estética final
+    ax.set_axis_off()
+    plt.legend()
+    plt.title(title)
+    plt.tight_layout()
+    plt.savefig("images/hcs_validos_zoom.png", dpi=300)
+    plt.show()
