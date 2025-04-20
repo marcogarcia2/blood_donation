@@ -36,10 +36,10 @@ def a_estrela(grafo, origem, destinos):
         for vizinho in grafo.neighbors(atual):
             # Calcular custo da aresta
             if grafo.is_multigraph():
-                arestas = grafo[atual][vizinho]
-                custo = min(attr.get('weight', 1) for attr in arestas.values())
+                arestas = grafo[atual][vizinho]  # Pega as múltiplas arestas entre os nós
+                custo = min(attr.get('length', 0) for attr in arestas.values())  # Corrigido para 'length'
             else:
-                custo = grafo[atual][vizinho].get('weight', 1)
+                custo = grafo[atual][vizinho].get('length', 0)  # Corrigido para 'length'
 
             novo_g = g + custo
 
