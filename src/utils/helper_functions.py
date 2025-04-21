@@ -29,16 +29,25 @@ class Graph:
 
     # Calcula rota com método padrão da biblioteca networkx
     def calcular_rota(self, origem, destino, weight="length"):
-        rota = nx.shortest_path(self.graph, origem, destino, weight=weight)
-        return rota
+        return nx.shortest_path(self.graph, origem, destino, weight=weight)
+        
     
     # Calcula a distância da rota com método padrão da biblioteca networkx
     def calcular_distancia(self, origem, destino, weight="length"):
-        distancia = nx.shortest_path_length(self.graph, origem, destino, weight=weight)
-        return distancia
+        return nx.shortest_path_length(self.graph, origem, destino, weight=weight)
 
+    # Função customizada: Plotar a rota com cores chamativas
     def plotar_rota(self, rota, name=None):
-        
+        '''
+        Plota uma rota qualquer em azul, com o nó de origem em verde e o nó de destino em vermelho,
+        sobre o grafo todo em cinza. 
+
+        Args:
+            rota: lista de nós que compõe a rota
+            name: nome do arquivo caso queria salvar a imagem (opcional)
+        '''
+
+        # Definindo o primeiro e o último nó
         origem = rota[0]
         destino = rota[-1]
 
@@ -56,7 +65,7 @@ class Graph:
         x = [self.graph.nodes[n]['x'] for n in rota]
         y = [self.graph.nodes[n]['y'] for n in rota]
 
-        # Desenha a rota real com geometria das arestas
+        # Desenha a rota real respeitando a geometria das arestas
         for u, v in zip(rota[:-1], rota[1:]):
             edge_data = self.graph.get_edge_data(u, v)
             if self.graph.is_multigraph():
@@ -78,7 +87,7 @@ class Graph:
         ax.scatter(self.graph.nodes[destino]['x'], self.graph.nodes[destino]['y'], c='red', s=60, label='Destino', zorder=5)
 
         # Zoom: calcular limites com margem
-        margin = 0.005  # ajuste conforme o tamanho da cidade
+        margin = 0.005
 
         x_min, x_max = min(x), max(x)
         y_min, y_max = min(y), max(y)
@@ -100,8 +109,7 @@ class Graph:
         plt.legend()
         plt.tight_layout()
         
-        if name:
-            plt.savefig("../images/" + name, dpi=300)
+        if name: plt.savefig("../images/" + name, dpi=300)
 
         plt.show()
 
@@ -174,19 +182,25 @@ class BancoDeHemocentros:
     
 
 # Função que plota os hemocentros, o usuário e as ruas com zoom
-def plotar_com_zoom(gdf_user, gdf_hcs, gdf_edges, streets=True, valid=False, map=True, name=None):
+def plotar_com_zoom(gdf_user, gdf_hcs, gdf_edges, valid=False, map=True, name=None):
     '''
-    Essa função 
-    Args: 
-        
-    '''
+    Essa função plota a posição do usuário e as posições dos hemocentros em relação ao grafo todo.
+    O Plot é realizado com zoom, ignorando partes não importantes do grafo (pois este geralmente é muito grande.)
 
+    Args: 
+        gdf_user: posição do usuário em GDF (verde)
+        gdf_hcs: posição dos hemocentros em GDF (vermelho)
+        gdf_edges: todo o grafo em GDF (azul, representa as ruas)
+        valid: booleano que indica se os hemocentros em questão são os válidos ou gerais (opcional)
+        map: booleano responsável por colocar o mapa por debaixo do plot (opcional)
+        name: nome do arquivo caso queira salvar a imagem (opcional)
+    '''
 
     # Juntando os pontos que queremos enquadrar
     gdf_zoom = pd.concat([gdf_user, gdf_hcs])
 
     # Parâmetros de margem e tamanho mínimo
-    margin_percent = 0.1
+    margin = 0.1
 
     # Calculando limites brutos
     x_min, x_max = gdf_zoom.geometry.x.min(), gdf_zoom.geometry.x.max()
@@ -197,8 +211,8 @@ def plotar_com_zoom(gdf_user, gdf_hcs, gdf_edges, streets=True, valid=False, map
     real_height = y_max - y_min
 
     # Margem absoluta
-    x_margin = real_width * margin_percent
-    y_margin = real_height * margin_percent
+    x_margin = real_width * margin
+    y_margin = real_height * margin
 
     # Tamanhos finais respeitando proporção quadrada
     lado = max(real_width, real_height)
@@ -213,7 +227,10 @@ def plotar_com_zoom(gdf_user, gdf_hcs, gdf_edges, streets=True, valid=False, map
     y_min_plot = y_center - lado / 2 - y_margin
     y_max_plot = y_center + lado / 2 + y_margin
 
-    # Verificando se os hemocentros são validos
+    ## Daqui pra cima, a única coisa que foi feita foi o cálculo para dar zoom. 
+    ## Não se preocupe tanto com o código acima.
+
+    # Verificando se os hemocentros são validos ou não, isso mudará o título e a legenda
     title, hc_label = "", ""
     if valid:
         hc_label = "Hemocentro Válido"
@@ -222,11 +239,11 @@ def plotar_com_zoom(gdf_user, gdf_hcs, gdf_edges, streets=True, valid=False, map
         hc_label = "Hemocentro"
         title = "Usuário e Hemocentros (com Zoom)"
 
-    # Plotando o mapa
+    # Plotando os dados de fato no mapa, caso tenham sido passados por argumento
     fig, ax = plt.subplots(figsize=(10, 10))
-    if streets: gdf_edges.plot(ax=ax, linewidth=0.2, edgecolor="blue", label='Ruas')
-    gdf_hcs.plot(ax=ax, color="red", markersize=50, zorder=3, label=hc_label)
-    gdf_user.plot(ax=ax, color="#00AA00", markersize=150, zorder=3, label='Localização do Usuário')
+    if gdf_edges is not None: gdf_edges.plot(ax=ax, linewidth=0.2, edgecolor="blue", label='Ruas')
+    if gdf_hcs is not None: gdf_hcs.plot(ax=ax, color="red", markersize=50, zorder=3, label=hc_label)
+    if gdf_user is not None: gdf_user.plot(ax=ax, color="#00AA00", markersize=150, zorder=3, label='Localização do Usuário')
     
 
     # Aplicando limites
