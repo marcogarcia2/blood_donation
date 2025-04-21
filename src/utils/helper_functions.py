@@ -273,7 +273,7 @@ def plotar_com_zoom(gdf_user, gdf_hcs, gdf_edges, valid=False, map=True, name=No
     # Estética final
     ax.set_axis_off()
     plt.legend()
-    plt.title(title)
+    if not app: plt.title(title)
     plt.tight_layout()
 
     # Caso tenha nome, significa que quer salvar a imagem

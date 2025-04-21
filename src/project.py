@@ -234,8 +234,10 @@ class BloodDonationApp:
             plotar_com_zoom(gdf_user=self.gdf_user, gdf_hcs=self.gdf_hcs_validos, gdf_edges=self.grafo.edges_gdf, map=False, valid=True, name="hemocentros_validos.png", app=True)
             self.mostrar_imagem("hemocentros_validos.png")
 
-            if len(hcs_validos) < 5 and len(hcs_validos) > 0:
+            if len(hcs_validos) < 5 and len(hcs_validos) > 1:
                 messagebox.showinfo("Sucesso", f"De 5 hemocentros, apenas {len(hcs_validos)} possuem doadores compatíveis.")
+            elif len(hcs_validos) == 1:
+                messagebox.showinfo("Sucesso", f"De 5 hemocentros, apenas {len(hcs_validos)} possui doadores compatíveis.")
             elif len(hcs_validos) == 0:
                 messagebox.showinfo("Sucesso", f"Nenhum dos hemocentros possui doadores compatíveis.")
             else:
