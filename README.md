@@ -1,5 +1,5 @@
 # IA - Busca de Doadores Compatíveis de Sangue 
-Repositório referente ao trabalho 1 da disciplina **SCC0630 - Inteligência Artificial**.
+Repositório referente ao trabalho 1 da disciplina **SCC0630 - Inteligência Artificial**. Toda a explicação da lógica do sistema encontra-se no Jupyter Notebook, enquanto o script `project.py` encapsula as funcionalidades em um único programa.
 
 **Docente:** Profa. Dra. Solange Oliveira Rezende
 
@@ -26,11 +26,18 @@ O sistema funciona da seguinte maneira:
 - De todos os hemocentros da cidade, **filtra** por aqueles que possuem estoque de sangue compatível;
 - **Traça a rota** ideal até esse hemocentro.
 
-No caso, a cidade escolhida foi **São Carlos - SP**. O sistema ...
+No caso, a cidade escolhida foi **São Carlos - SP**. O sistema realiza dois tipos de buscas diferentes, a Busca Não Informada (Breadth-First Search) e a Busca Informada (A-star). Mais detalhes das implementações dessas buscas estão no notebook do repositório. 
 
-IMAGEM
+A rota baseada no método de busca é traçada, e pode ser visualizada pelo usuário. Uma análise dos algoritmos de buscas foi feita no notebook em questão, e nela justificamos o porquê do algoritmo **A*** ser o mais adequado para o problema. 
 
-
+<p align="center">
+  <img src="images/rota_astar.png" alt="Rota" width="550">
+</p>
+<p align="center">
+  <a style="font-size: 12px; text-decoration: none; color: inherit;">
+    Rota traçada pelo sistema para Hemocentro válido.
+  </a>
+</p>
 
 ## 📚 Instalando as Dependências
 Para executar o ambiente Python, crie um ambiente isolado para instalar as dependências necessárias. Essa é uma boa prática de programação, pois as bibliotecas ficam instaladas somente no ambiente e não no seu computador, garantindo isolamento e reproducibilidade.
