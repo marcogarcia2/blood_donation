@@ -224,7 +224,8 @@ class BloodDonationApp:
         self.nos_label.config(text=f"Nós percorridos: {len(rota)}")
         
         # Plotar rota
-        self.grafo.plotar_rota_com_zoom(rota)
+        nome_arquivo = f"rota_{algoritmo.lower().replace('*', 'star')}"
+        self.grafo.plotar_rota(rota, name=nome_arquivo)
 
 if __name__ == "__main__":
     root = tk.Tk()
