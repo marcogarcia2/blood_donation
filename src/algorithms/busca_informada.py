@@ -9,7 +9,7 @@ de nós de destino em um grafo.
 import heapq
 from math import radians, sin, cos, sqrt, atan2
 
-def haversine(n1, n2, grafo):
+def __haversine(n1, n2, grafo):
     """
     Calcula a distância Haversine entre dois nós com coordenadas geográficas.
     
@@ -54,13 +54,18 @@ def a_estrela(grafo, origem, destinos):
     Raises:
         ValueError: Se nenhum caminho for encontrado para os destinos fornecidos
     """
+
     destinos = set(destinos)
     fila = []
+
+    # Inicializa a fila de prioridade com o nó origem
+    # f(n) = g(n) + h(n) → custo atual + heurística (distância estimada até o destino mais próximo)
     heapq.heappush(
         fila, 
-        (0 + min(haversine(origem, d, grafo) for d in destinos), 0, origem, [origem])
+        (0 + min(__haversine(origem, d, grafo) for d in destinos), 0, origem, [origem])
     )
 
+    # g(n): custo real acumulado até cada nó
     custo_ate_agora = {origem: 0}
 
     while fila:
@@ -70,18 +75,19 @@ def a_estrela(grafo, origem, destinos):
             return caminho
 
         for vizinho in grafo.neighbors(atual):
-            # Calcular custo da aresta
+            # Calcula o custo da aresta entre atual e vizinho
             if grafo.is_multigraph():
                 arestas = grafo[atual][vizinho]  # Pega as múltiplas arestas entre os nós
                 custo = min(attr.get('length', 0) for attr in arestas.values())
             else:
                 custo = grafo[atual][vizinho].get('length', 0)
 
-            novo_g = g + custo
+            novo_g = g + custo  # g(n) atualizado
 
+            # Só atualiza se for a primeira vez ou se o novo caminho for melhor
             if vizinho not in custo_ate_agora or novo_g < custo_ate_agora[vizinho]:
                 custo_ate_agora[vizinho] = novo_g
-                h = min(haversine(vizinho, d, grafo) for d in destinos)
+                h = min(__haversine(vizinho, d, grafo) for d in destinos)  # h(n): heurística até o destino mais próximo
                 f_novo = novo_g + h
                 heapq.heappush(fila, (f_novo, novo_g, vizinho, caminho + [vizinho]))
 
