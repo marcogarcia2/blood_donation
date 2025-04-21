@@ -61,7 +61,8 @@ deactivate
 ## ⚙️ Executando o projeto
 Para rodar o projeto, execute:
 ```shell
-python3 src/project.py
+cd src
+python3 project.py
 ```
 
 

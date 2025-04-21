@@ -4,3 +4,4 @@ osmnx
 networkx
 contextily
 scikit-learn
+pillow

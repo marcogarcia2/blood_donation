@@ -37,7 +37,7 @@ class Graph:
         return nx.shortest_path_length(self.graph, origem, destino, weight=weight)
 
     # Função customizada: Plotar a rota com cores chamativas
-    def plotar_rota(self, rota, name=None):
+    def plotar_rota(self, rota, name=None, app=False):
         '''
         Plota uma rota qualquer em azul, com o nó de origem em verde e o nó de destino em vermelho,
         sobre o grafo todo em cinza. 
@@ -45,6 +45,7 @@ class Graph:
         Args:
             rota: lista de nós que compõe a rota
             name: nome do arquivo caso queria salvar a imagem (opcional)
+            app: indica se foi chamada pelo aplicativo ou não (opcional)
         '''
 
         # Definindo o primeiro e o último nó
@@ -109,9 +110,18 @@ class Graph:
         plt.legend()
         plt.tight_layout()
         
-        if name: plt.savefig("../images/" + name, dpi=300)
+        # Caso tenha nome, significa que quer salvar a imagem
+        if name is not None: 
+            if app: 
+                plt.savefig("../images/app_images/" + name, dpi=300)
+            else:
+                plt.savefig("../images/" + name, dpi=300)
 
-        plt.show()
+        # Se for exibido pelo aplicativo, não abra uma janela
+        if app:
+            plt.close(fig) 
+        else:
+            plt.show()   
 
 
 
@@ -182,7 +192,7 @@ class BancoDeHemocentros:
     
 
 # Função que plota os hemocentros, o usuário e as ruas com zoom
-def plotar_com_zoom(gdf_user, gdf_hcs, gdf_edges, valid=False, map=True, name=None):
+def plotar_com_zoom(gdf_user, gdf_hcs, gdf_edges, valid=False, map=True, name=None, app=False):
     '''
     Essa função plota a posição do usuário e as posições dos hemocentros em relação ao grafo todo.
     O Plot é realizado com zoom, ignorando partes não importantes do grafo (pois este geralmente é muito grande.)
@@ -194,38 +204,41 @@ def plotar_com_zoom(gdf_user, gdf_hcs, gdf_edges, valid=False, map=True, name=No
         valid: booleano que indica se os hemocentros em questão são os válidos ou gerais (opcional)
         map: booleano responsável por colocar o mapa por debaixo do plot (opcional)
         name: nome do arquivo caso queira salvar a imagem (opcional)
+        app: indica se foi chamada pelo aplicativo (opcional)
     '''
 
     # Juntando os pontos que queremos enquadrar
-    gdf_zoom = pd.concat([gdf_user, gdf_hcs])
+    gdfs = [gdf for gdf in [gdf_user, gdf_hcs] if gdf is not None]
+    if gdfs:
+        gdf_zoom = pd.concat(gdfs)
 
-    # Parâmetros de margem e tamanho mínimo
-    margin = 0.1
+        # Parâmetros de margem e tamanho mínimo
+        margin = 0.1
 
-    # Calculando limites brutos
-    x_min, x_max = gdf_zoom.geometry.x.min(), gdf_zoom.geometry.x.max()
-    y_min, y_max = gdf_zoom.geometry.y.min(), gdf_zoom.geometry.y.max()
+        # Calculando limites brutos
+        x_min, x_max = gdf_zoom.geometry.x.min(), gdf_zoom.geometry.x.max()
+        y_min, y_max = gdf_zoom.geometry.y.min(), gdf_zoom.geometry.y.max()
 
-    # Dimensões reais
-    real_width = x_max - x_min
-    real_height = y_max - y_min
+        # Dimensões reais
+        real_width = x_max - x_min
+        real_height = y_max - y_min
 
-    # Margem absoluta
-    x_margin = real_width * margin
-    y_margin = real_height * margin
+        # Margem absoluta
+        x_margin = real_width * margin
+        y_margin = real_height * margin
 
-    # Tamanhos finais respeitando proporção quadrada
-    lado = max(real_width, real_height)
+        # Tamanhos finais respeitando proporção quadrada
+        lado = max(real_width, real_height)
 
-    # Centro da área
-    x_center = (x_min + x_max) / 2
-    y_center = (y_min + y_max) / 2
+        # Centro da área
+        x_center = (x_min + x_max) / 2
+        y_center = (y_min + y_max) / 2
 
-    # Limites ajustados com margem e proporção quadrada
-    x_min_plot = x_center - lado / 2 - x_margin
-    x_max_plot = x_center + lado / 2 + x_margin
-    y_min_plot = y_center - lado / 2 - y_margin
-    y_max_plot = y_center + lado / 2 + y_margin
+        # Limites ajustados com margem e proporção quadrada
+        x_min_plot = x_center - lado / 2 - x_margin
+        x_max_plot = x_center + lado / 2 + x_margin
+        y_min_plot = y_center - lado / 2 - y_margin
+        y_max_plot = y_center + lado / 2 + y_margin
 
     ## Daqui pra cima, a única coisa que foi feita foi o cálculo para dar zoom. 
     ## Não se preocupe tanto com o código acima.
@@ -239,16 +252,19 @@ def plotar_com_zoom(gdf_user, gdf_hcs, gdf_edges, valid=False, map=True, name=No
         hc_label = "Hemocentro"
         title = "Usuário e Hemocentros (com Zoom)"
 
+
+    green = 'chartreuse' if map else '#00AA00'
+    
     # Plotando os dados de fato no mapa, caso tenham sido passados por argumento
     fig, ax = plt.subplots(figsize=(10, 10))
     if gdf_edges is not None: gdf_edges.plot(ax=ax, linewidth=0.2, edgecolor="blue", label='Ruas')
     if gdf_hcs is not None: gdf_hcs.plot(ax=ax, color="red", markersize=50, zorder=3, label=hc_label)
-    if gdf_user is not None: gdf_user.plot(ax=ax, color="#00AA00", markersize=150, zorder=3, label='Localização do Usuário')
+    if gdf_user is not None: gdf_user.plot(ax=ax, color=green, markersize=150, zorder=3, label='Localização do Usuário')
     
-
-    # Aplicando limites
-    ax.set_xlim(x_min_plot, x_max_plot)
-    ax.set_ylim(y_min_plot, y_max_plot)
+    if gdfs:
+        # Aplicando limites
+        ax.set_xlim(x_min_plot, x_max_plot)
+        ax.set_ylim(y_min_plot, y_max_plot)
 
     if map:
         import contextily as ctx
@@ -260,7 +276,16 @@ def plotar_com_zoom(gdf_user, gdf_hcs, gdf_edges, valid=False, map=True, name=No
     plt.title(title)
     plt.tight_layout()
 
-    if name: plt.savefig("../images/" + name, dpi=300)
-    
-    plt.show()
+    # Caso tenha nome, significa que quer salvar a imagem
+    if name is not None: 
+        if app: 
+            plt.savefig("../images/app_images/" + name, dpi=300)
+        else:
+            plt.savefig("../images/" + name, dpi=300)
+
+    # Se for exibido pelo aplicativo, não abra uma janela
+    if app:
+        plt.close(fig) 
+    else:
+        plt.show()  
 
